@@ -5,30 +5,52 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Corrida Maluca</title>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; background: #f4f4f4; margin: 0; padding: 20px; }
-    h1 { margin-bottom: 0; }
-    .pista { max-width: 700px; margin: 20px auto; background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,.1); }
-    .corredor { display: flex; align-items: center; gap: 8px; border-bottom: 2px dashed #ccc; padding: 10px 0; }
+    body { font-family: Arial, sans-serif; text-align: center; background: #7ec850; margin: 0; padding: 20px; }
+    h1 { margin-bottom: 0; color: #fff; text-shadow: 2px 2px #333; }
+    .sub { color: #fff; font-weight: bold; }
+    .arquibancada { max-width: 700px; margin: 16px auto 0; background: #8d6e63; border-radius: 12px 12px 0 0; padding: 10px; }
+    .torcedores { font-size: 28px; line-height: 1.2; animation: pular 0.8s infinite alternate; }
+    @keyframes pular { from { transform: translateY(0); } to { transform: translateY(-4px); } }
+    .torcida-msg { color: #fff; font-weight: bold; min-height: 1.4em; }
+    .juiz-box { max-width: 700px; margin: 0 auto; background: #fff; padding: 10px 16px; display: flex; align-items: center; gap: 12px; border-top: 4px solid #333; border-bottom: 4px solid #333; }
+    .juiz-emoji { font-size: 48px; }
+    .juiz-fala { background: #f0f0f0; border-radius: 12px; padding: 8px 14px; font-weight: bold; flex: 1; text-align: left; border: 2px solid #333; }
+    .pista { max-width: 700px; margin: 0 auto 20px; background: #555; border-radius: 0 0 12px 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,.3); }
+    .corredor { display: flex; align-items: center; gap: 8px; border-bottom: 3px solid #fff; padding: 10px 0; }
     .corredor:last-child { border-bottom: none; }
-    .nome { width: 160px; font-weight: bold; text-align: right; font-size: 14px; }
-    .trilha { position: relative; flex: 1; height: 56px; background: #e9e9e9; border-radius: 20px; overflow: hidden; }
-    .carro { position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 64px; transition: left 0.2s; }
+    .nome { width: 160px; font-weight: bold; text-align: right; font-size: 14px; color: #fff; }
+    .trilha { position: relative; flex: 1; height: 56px; background: repeating-linear-gradient(90deg, #666 0 20px, #777 20px 40px); border-radius: 8px; overflow: hidden; }
+    .largada { position: absolute; left: 0; top: 0; bottom: 0; width: 10px; background: #27ae60; }
+    .chegada { position: absolute; right: 0; top: 0; bottom: 0; width: 14px; background: repeating-conic-gradient(#000 0 25%, #fff 0 50%) 0 0/14px 14px; }
+    .carro { position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 64px; transition: left 0.2s; z-index: 2; }
     .carro svg { display: block; width: 64px; height: 40px; }
-    #resultado { font-size: 1.4em; font-weight: bold; margin: 16px 0; min-height: 1.5em; }
+    #resultado { font-size: 1.4em; font-weight: bold; margin: 16px 0; min-height: 1.5em; color: #fff; text-shadow: 1px 1px #000; }
     button { font-size: 1.1em; padding: 10px 24px; border: none; border-radius: 8px; background: #27ae60; color: #fff; cursor: pointer; margin: 4px; }
     button:disabled { background: #999; }
     #reiniciar { background: #e67e22; }
-    footer { margin-top: 20px; color: #555; }
+    footer { margin-top: 20px; color: #fff; }
+    footer a { color: #fff; }
   </style>
 </head>
 <body>
   <h1>Corrida Maluca 🏁</h1>
-  <p>4 corredores disputando a vitória!</p>
+  <p class="sub">4 corredores disputando a vitória!</p>
+
+  <div class="arquibancada">
+    <div class="torcedores">🧑 👩 👧 👦 👵 👴 👶 🧒 👱‍♀️ 👨‍🦰 👩‍🦳 🧑‍🦱 👨 👩 🧑 👧 👦 👴 👵 👩</div>
+    <div class="torcedores">👏 🎉 👏 🎉 👏 🎉 👏 🎉 👏 🎉 👏 🎉 👏 🎉 👏 🎉 👏 🎉 👏 🎉</div>
+    <div class="torcida-msg" id="torcida">Torcida: Vai começar! 🎺</div>
+  </div>
+
+  <div class="juiz-box">
+    <span class="juiz-emoji" id="juiz-emoji">🧑‍⚖️🏁</span>
+    <div class="juiz-fala" id="juiz-fala">Juiz: Preparar... aguardando largada! 🚦</div>
+  </div>
 
   <div class="pista" id="pista">
     <div class="corredor" data-nome="Miguel">
       <span class="nome">Miguel 🩵 verde-água</span>
-      <div class="trilha"><span class="carro">
+      <div class="trilha"><div class="largada"></div><span class="carro">
         <svg viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg">
           <ellipse cx="18" cy="32" rx="8" ry="8" fill="#222"/><ellipse cx="18" cy="32" rx="3.5" ry="3.5" fill="#999"/>
           <ellipse cx="48" cy="32" rx="8" ry="8" fill="#222"/><ellipse cx="48" cy="32" rx="3.5" ry="3.5" fill="#999"/>
@@ -38,11 +60,11 @@
           <rect x="33" y="6" width="6" height="12" fill="#0d9488" transform="rotate(20 36 12)"/>
           <rect x="28" y="10" width="8" height="4" rx="2" fill="#333"/>
         </svg>
-      </span></div>
+      </span><div class="chegada"></div></div>
     </div>
     <div class="corredor" data-nome="Manuella G.">
       <span class="nome">Manuella G. 💜 roxo-claro</span>
-      <div class="trilha"><span class="carro">
+      <div class="trilha"><div class="largada"></div><span class="carro">
         <svg viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg">
           <ellipse cx="18" cy="32" rx="8" ry="8" fill="#222"/><ellipse cx="18" cy="32" rx="3.5" ry="3.5" fill="#999"/>
           <ellipse cx="48" cy="32" rx="8" ry="8" fill="#222"/><ellipse cx="48" cy="32" rx="3.5" ry="3.5" fill="#999"/>
@@ -52,11 +74,11 @@
           <rect x="33" y="6" width="6" height="12" fill="#9333EA" transform="rotate(20 36 12)"/>
           <rect x="28" y="10" width="8" height="4" rx="2" fill="#333"/>
         </svg>
-      </span></div>
+      </span><div class="chegada"></div></div>
     </div>
     <div class="corredor" data-nome="Helena">
       <span class="nome">Helena ❤️ vermelho</span>
-      <div class="trilha"><span class="carro">
+      <div class="trilha"><div class="largada"></div><span class="carro">
         <svg viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg">
           <ellipse cx="18" cy="32" rx="8" ry="8" fill="#222"/><ellipse cx="18" cy="32" rx="3.5" ry="3.5" fill="#999"/>
           <ellipse cx="48" cy="32" rx="8" ry="8" fill="#222"/><ellipse cx="48" cy="32" rx="3.5" ry="3.5" fill="#999"/>
@@ -66,11 +88,11 @@
           <rect x="33" y="6" width="6" height="12" fill="#B91C1C" transform="rotate(20 36 12)"/>
           <rect x="28" y="10" width="8" height="4" rx="2" fill="#333"/>
         </svg>
-      </span></div>
+      </span><div class="chegada"></div></div>
     </div>
     <div class="corredor" data-nome="João B.">
       <span class="nome">João B. 💙 azul</span>
-      <div class="trilha"><span class="carro">
+      <div class="trilha"><div class="largada"></div><span class="carro">
         <svg viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg">
           <ellipse cx="18" cy="32" rx="8" ry="8" fill="#222"/><ellipse cx="18" cy="32" rx="3.5" ry="3.5" fill="#999"/>
           <ellipse cx="48" cy="32" rx="8" ry="8" fill="#222"/><ellipse cx="48" cy="32" rx="3.5" ry="3.5" fill="#999"/>
@@ -80,7 +102,7 @@
           <rect x="33" y="6" width="6" height="12" fill="#1D4ED8" transform="rotate(20 36 12)"/>
           <rect x="28" y="10" width="8" height="4" rx="2" fill="#333"/>
         </svg>
-      </span></div>
+      </span><div class="chegada"></div></div>
     </div>
   </div>
 
@@ -98,6 +120,8 @@
     const resultado = document.getElementById('resultado');
     const btnLargar = document.getElementById('largar');
     const btnReiniciar = document.getElementById('reiniciar');
+    const juizFala = document.getElementById('juiz-fala');
+    const torcida = document.getElementById('torcida');
     let posicoes = [0, 0, 0, 0];
     let intervalo = null;
 
@@ -107,23 +131,29 @@
       posicoes = [0, 0, 0, 0];
       carros.forEach(c => c.style.left = '0%');
       resultado.textContent = '';
+      juizFala.textContent = 'Juiz: Preparar... aguardando largada! 🚦';
+      torcida.textContent = 'Torcida: Vai começar! 🎺';
       btnLargar.disabled = false;
     }
 
     function largar() {
       reiniciar();
       btnLargar.disabled = true;
+      juizFala.textContent = 'Juiz: 3... 2... 1... VAI! 🏁';
+      torcida.textContent = 'Torcida: Vai, vai, vai! 📣📣📣';
       intervalo = setInterval(() => {
         let vencedor = -1;
         for (let i = 0; i < 4; i++) {
           posicoes[i] += Math.random() * 4;
-          if (posicoes[i] >= 90) { posicoes[i] = 90; vencedor = i; }
+          if (posicoes[i] >= 85) { posicoes[i] = 85; vencedor = i; }
           carros[i].style.left = posicoes[i] + '%';
         }
         if (vencedor !== -1) {
           clearInterval(intervalo);
           const nome = document.querySelectorAll('.corredor')[vencedor].dataset.nome;
           resultado.textContent = '🏆 ' + nome + ' venceu a Corrida Maluca!';
+          juizFala.textContent = 'Juiz: Fim de prova! Vitória de ' + nome + '! 🏁';
+          torcida.textContent = 'Torcida: ' + nome + ' é campeão! 🎉🎊🥳';
           btnLargar.disabled = false;
         }
       }, 100);
