@@ -18,6 +18,8 @@
     .kart { background: #1c2833; border-radius: 10px; padding: 8px; border-top: 6px solid #fff; font-size: 13px; }
     .kart b { display: block; font-size: 14px; }
     .kart .kmh { color: #7CFC00; font-weight: bold; } .kart .kmd { color: #87CEFA; }
+    .pulo { font-size: .8em; padding: 6px 10px; margin-top: 6px; background: #8e44ad; width: 100%; }
+    .pulo:disabled { background: #555; }
     .botoes { margin-top: 10px; }
     button { font-size: 1.05em; padding: 12px 26px; border: none; border-radius: 10px; background: #27ae60; color: #fff; cursor: pointer; margin: 4px; font-weight: bold; }
     button:disabled { background: #777; }
@@ -33,7 +35,7 @@
 <body>
 <div id="wrap">
   <h1>Corrida Maluca 3D 🏁 BMW</h1>
-  <p class="sub">4 BMWs em 3D real • pista de <b id="dist-rotulo">500 km</b> • arraste para girar, scroll para zoom</p>
+  <p class="sub">4 BMWs em 3D real • pista de <b id="dist-rotulo">500 km</b> • cada piloto pode 🦘 pular 20m (3x por prova, teclas 1-4) • arraste para girar, scroll para zoom</p>
   <canvas id="cena"></canvas>
 
   <div class="painel">
@@ -413,8 +415,9 @@ pilotos.forEach((p, i) => {
   const d = document.createElement('div');
   d.className = 'kart';
   d.style.borderTopColor = '#' + p.cor.toString(16).padStart(6, '0');
-  d.innerHTML = `<b>${p.nome}</b>${p.modelo} 🪖<br><span class="kmh" id="kmh${i}">0 km/h</span><br><span class="kmd" id="kmd${i}">0 km</span><br><span id="pos${i}">4º</span>`;
+  d.innerHTML = `<b>${p.nome}</b>${p.modelo} 🪖<br><span class="kmh" id="kmh${i}">0 km/h</span><br><span class="kmd" id="kmd${i}">0 km</span><br><span id="pos${i}">4º</span><br><button class="pulo" id="pulo${i}">🦘 Pular 20m (3)</button>`;
   placar.appendChild(d);
+  d.querySelector('button').addEventListener('click', () => pular(i));
 });
 const kmhEl = [0,1,2,3].map(i => document.getElementById('kmh' + i));
 const kmdEl = [0,1,2,3].map(i => document.getElementById('kmd' + i));
@@ -428,7 +431,31 @@ const btnLargar = document.getElementById('largar');
 const btnReiniciar = document.getElementById('reiniciar');
 
 let dist = [0,0,0,0], kmh = [0,0,0,0], seg = 0, frame = null, correndo = false, anunciado = 100, last = 0;
+let pulos = [3,3,3,3], puloT = [0,0,0,0], puloCd = [0,0,0,0];
+const PULO_METROS = 20;
 function fmt(s){ return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(Math.floor(s%60)).padStart(2,'0'); }
+function atualizaPulos() {
+  for (let i = 0; i < 4; i++) {
+    const b = document.getElementById('pulo' + i);
+    if (!b) continue;
+    const pronto = correndo && pulos[i] > 0 && puloT[i] === 0 && seg >= puloCd[i];
+    b.disabled = !pronto;
+    b.textContent = pulos[i] > 0 ? `🦘 Pular 20m (${pulos[i]})` : '🦘 Sem pulos!';
+  }
+}
+function pular(i) {
+  if (!correndo || pulos[i] <= 0 || puloT[i] !== 0 || seg < puloCd[i]) return;
+  pulos[i]--;
+  puloT[i] = 0.0001; // inicia animação
+  puloCd[i] = seg + 4; // recarga de 4s
+  dist[i] += (PULO_METROS / TRACK_LEN) * TOTAL_KM; // 20 m na pista 3D
+  juizFala.textContent = `🧑‍⚖️ Juiz: ${pilotos[i].nome} pulou 20 metros! 🦘`;
+  atualizaPulos();
+}
+window.addEventListener('keydown', e => {
+  const n = parseInt(e.key);
+  if (n >= 1 && n <= 4) pular(n - 1);
+});
 function atualizaHUD() {
   const ordem = [0,1,2,3].sort((a,b) => dist[b]-dist[a]);
   const med = ['🥇 1º','🥈 2º','🥉 3º','4º'];
@@ -443,13 +470,15 @@ function atualizaHUD() {
 function reiniciar() {
   cancelAnimationFrame(frame); frame = null; correndo = false;
   dist = [0,0,0,0]; kmh = [0,0,0,0]; seg = 0; anunciado = 100;
-  carros3D.forEach(c => c.position.x = 0);
+  pulos = [3,3,3,3]; puloT = [0,0,0,0]; puloCd = [0,0,0,0];
+  carros3D.forEach(c => { c.position.x = 0; c.position.y = 0; c.rotation.z = 0; });
   camPos.set(-30, 26, 30); camAlvo.set(10, 2, 0);
   resultado.textContent = '';
   juizFala.textContent = `🧑‍⚖️ Juiz: Preparar... ${TOTAL_KM} km pela frente! 🚦`;
   torcidaEl.textContent = '🧑 👩 👧 👦 🎉 👏 Torcida: Vai começar! 🎺';
   btnLargar.disabled = false;
   atualizaHUD();
+  atualizaPulos();
 }
 function passo(t) {
   const dt = Math.min(0.1, (t - last) / 1000); last = t;
@@ -461,9 +490,16 @@ function passo(t) {
     dist[i] += (kmh[i] / 3600) * dt * TIME_SCALE;
     const x = Math.min(TRACK_LEN, (dist[i] / TOTAL_KM) * TRACK_LEN);
     carros3D[i].position.x = x;
-    carros3D[i].position.y = Math.abs(Math.sin(tempo * 30 + i)) * 0.06;
+    let salto = 0;
+    if (puloT[i] > 0) {
+      puloT[i] += dt / 0.9; // salto dura 0.9s
+      if (puloT[i] >= 1) { puloT[i] = 0; carros3D[i].rotation.z = 0; }
+      else { salto = Math.sin(puloT[i] * Math.PI) * 7; carros3D[i].rotation.z = Math.sin(puloT[i] * Math.PI) * 0.25; }
+    }
+    carros3D[i].position.y = Math.abs(Math.sin(tempo * 30 + i)) * 0.06 + salto;
     carros3D[i].userData.rodas.forEach(r => r.rotation.z -= kmh[i] * dt * 0.05);
   }
+  if (Math.floor(tempo * 2) !== Math.floor((tempo - dt) * 2)) atualizaPulos();
   torcedores.forEach(c => { c.position.y = c.userData.y0 + Math.abs(Math.sin(tempo * 6 + c.userData.fase)) * 1.2; });
   juiz.position.y = Math.abs(Math.sin(tempo * 4)) * 0.4;
   const lider = dist.indexOf(Math.max(...dist));
