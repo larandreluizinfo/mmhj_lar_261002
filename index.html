@@ -43,6 +43,13 @@
     <span>🎥 <b>3D</b></span>
   </div>
 
+  <div class="dist-btns" style="margin-top:8px" id="cambtns">
+    🎥 Câmera:
+    <button data-cam="lider" class="ativo">Seguir líder</button>
+    <button data-cam="pelotao">Pelotão</button>
+    <button data-cam="livre">Livre</button>
+  </div>
+
   <div class="dist-btns" style="margin-top:8px">
     Pista:
     <button data-km="100">100 km</button>
@@ -265,13 +272,21 @@ const carros3D = pilotos.map((p, i) => {
   return c;
 });
 
-// câmera orbit simples (arrastar)
-let ang = 0.5, raio = 55, my = 26, alvoX = 10, auto = true;
-let arrastando = false, px = 0;
-canvas.addEventListener('pointerdown', e => { arrastando = true; px = e.clientX; auto = false; });
+// câmera que acompanha os carros (3 modos)
+let camModo = 'lider';
+let ang = 0.5, raio = 55, my = 26;
+let camPos = new THREE.Vector3(-30, 26, 30);
+let camAlvo = new THREE.Vector3(10, 2, 0);
+let arrastando = false, px = 0, ultimoArrasto = 0;
+canvas.addEventListener('pointerdown', e => { arrastando = true; px = e.clientX; if (camModo !== 'livre') setCam('livre'); });
 window.addEventListener('pointerup', () => arrastando = false);
-window.addEventListener('pointermove', e => { if (arrastando) { ang += (e.clientX - px) * 0.005; px = e.clientX; } });
-canvas.addEventListener('wheel', e => { raio = Math.min(160, Math.max(20, raio + e.deltaY * 0.05)); auto = false; });
+window.addEventListener('pointermove', e => { if (arrastando) { ang += (e.clientX - px) * 0.005; px = e.clientX; ultimoArrasto = performance.now(); } });
+canvas.addEventListener('wheel', e => { raio = Math.min(160, Math.max(20, raio + e.deltaY * 0.05)); }, { passive: true });
+function setCam(m) {
+  camModo = m;
+  document.querySelectorAll('#cambtns button').forEach(x => x.classList.toggle('ativo', x.dataset.cam === m));
+}
+document.querySelectorAll('#cambtns button').forEach(b => b.addEventListener('click', () => setCam(b.dataset.cam)));
 
 // ---------- HUD + física ----------
 const placar = document.getElementById('placar');
@@ -310,6 +325,7 @@ function reiniciar() {
   cancelAnimationFrame(frame); frame = null; correndo = false;
   dist = [0,0,0,0]; kmh = [0,0,0,0]; seg = 0; anunciado = 100;
   carros3D.forEach(c => c.position.x = 0);
+  camPos.set(-30, 26, 30); camAlvo.set(10, 2, 0);
   resultado.textContent = '';
   juizFala.textContent = `🧑‍⚖️ Juiz: Preparar... ${TOTAL_KM} km pela frente! 🚦`;
   torcidaEl.textContent = '🧑 👩 👧 👦 🎉 👏 Torcida: Vai começar! 🎺';
@@ -332,7 +348,6 @@ function passo(t) {
   torcedores.forEach(c => { c.position.y = c.userData.y0 + Math.abs(Math.sin(tempo * 6 + c.userData.fase)) * 1.2; });
   juiz.position.y = Math.abs(Math.sin(tempo * 4)) * 0.4;
   const lider = dist.indexOf(Math.max(...dist));
-  if (auto) alvoX = carros3D[lider].position.x;
   atualizaHUD();
   if (dist[lider] >= anunciado && anunciado < TOTAL_KM) {
     juizFala.textContent = `🧑‍⚖️ Juiz: ${anunciado} km! ${pilotos[lider].nome} lidera!`;
@@ -378,14 +393,33 @@ document.querySelectorAll('.dist-btns button').forEach(b => {
   });
 });
 
-// loop de render
+// loop de render — câmera acompanha os carros
+function liderIdx() { return dist.indexOf(Math.max(...dist)); }
 function render(t) {
   requestAnimationFrame(render);
   const t3d = (t || 0) / 1000;
   if (!correndo) torcedores.forEach(c => { c.position.y = c.userData.y0 + Math.abs(Math.sin(t3d * 2 + c.userData.fase)) * 0.3; });
-  if (auto) alvoX += (carros3D[dist.indexOf(Math.max(...dist))].position.x - alvoX) * 0.05;
-  camera.position.set(alvoX - 28 + Math.cos(ang) * 20, my, Math.sin(ang) * raio * 0.7);
-  camera.lookAt(alvoX + 12, 2, 0);
+  const L = carros3D[liderIdx()];
+  let desPos, desAlvo;
+  if (camModo === 'lider') {
+    desPos = new THREE.Vector3(L.position.x - 20, 11, L.position.z + 13);
+    desAlvo = new THREE.Vector3(L.position.x + 10, 2, L.position.z * 0.4);
+  } else if (camModo === 'pelotao') {
+    const xs = carros3D.map(c => c.position.x);
+    const cx = (Math.max(...xs) + Math.min(...xs)) / 2;
+    desPos = new THREE.Vector3(cx - 32, 25, 32);
+    desAlvo = new THREE.Vector3(cx + 8, 1, 0);
+  } else {
+    const Lx = carros3D[liderIdx()].position.x;
+    camAlvo.x += (Lx - camAlvo.x) * 0.03;
+    desPos = new THREE.Vector3(camAlvo.x - 28 + Math.cos(ang) * 20, my, Math.sin(ang) * raio * 0.7);
+    desAlvo = new THREE.Vector3(camAlvo.x + 12, 2, 0);
+  }
+  const k = camModo === 'livre' ? 0.08 : 0.12;
+  camPos.lerp(desPos, k);
+  camAlvo.lerp(desAlvo, k);
+  camera.position.copy(camPos);
+  camera.lookAt(camAlvo);
   renderer.render(scene, camera);
 }
 function resize() {
