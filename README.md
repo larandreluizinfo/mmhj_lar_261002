@@ -1,4 +1,6 @@
-# mmhj_lar_261002
+# Corrida Maluca 🏁
+
+Jogo **Corrida Maluca** (`mmhj_lar_261002`).
 
 🌐 **Site (GitHub Pages):** https://larandreluizinfo.github.io/mmhj_lar_261002/
 
