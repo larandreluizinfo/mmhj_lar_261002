@@ -96,12 +96,12 @@
 
   <script>
     const pilotos = [
-      { nome: 'Miguel', modelo: 'BMW azul', cor: '#3B82F6', escura: '#1D4ED8', base: 248 },
-      { nome: 'Manuella G.', modelo: 'BMW roxa', cor: '#9333EA', escura: '#5B21B6', base: 252 },
-      { nome: 'Helena', modelo: 'BMW verde-água', cor: '#2DD4BF', escura: '#0F766E', base: 245 },
-      { nome: 'João B.', modelo: 'BMW vermelha', cor: '#EF4444', escura: '#991B1B', base: 250 },
+      { nome: 'Miguel', modelo: 'BMW azul', cor: '#3B82F6', escura: '#1D4ED8', base: 318 },
+      { nome: 'Manuella G.', modelo: 'BMW roxa', cor: '#9333EA', escura: '#5B21B6', base: 325 },
+      { nome: 'Helena', modelo: 'BMW verde-água', cor: '#2DD4BF', escura: '#0F766E', base: 315 },
+      { nome: 'João B.', modelo: 'BMW vermelha', cor: '#EF4444', escura: '#991B1B', base: 322 },
     ];
-    const TIME_SCALE = 60; // 1s real = 1min simulado -> 500km em ~2min
+    const TIME_SCALE = 240; // turbo: 500km em ~35s
     let TOTAL_KM = 500;
 
     function bmwSVG(cor, escura) {
@@ -202,7 +202,7 @@
       seg += dt;
       for (let i = 0; i < 4; i++) {
         const alvo = pilotos[i].base + Math.sin(seg*0.7 + i*2) * 18 + (Math.random()-0.5) * 22;
-        kmh[i] += (alvo - kmh[i]) * 0.06;
+        kmh[i] += (alvo - kmh[i]) * 0.12;
         dist[i] += (kmh[i] / 3600) * dt * TIME_SCALE;
       }
       atualizaHUD();
