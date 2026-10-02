@@ -3,108 +3,67 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Corrida Maluca</title>
+  <title>Corrida Maluca — BMWs</title>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; background: #7ec850; margin: 0; padding: 20px; }
-    h1 { margin-bottom: 0; color: #fff; text-shadow: 2px 2px #333; }
-    .sub { color: #fff; font-weight: bold; }
-    .arquibancada { max-width: 700px; margin: 16px auto 0; background: #8d6e63; border-radius: 12px 12px 0 0; padding: 10px; }
-    .torcedores { font-size: 28px; line-height: 1.2; animation: pular 0.8s infinite alternate; }
-    @keyframes pular { from { transform: translateY(0); } to { transform: translateY(-4px); } }
-    .torcida-msg { color: #fff; font-weight: bold; min-height: 1.4em; }
-    .juiz-box { max-width: 700px; margin: 0 auto; background: #fff; padding: 10px 16px; display: flex; align-items: center; gap: 12px; border-top: 4px solid #333; border-bottom: 4px solid #333; }
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; text-align: center; background: linear-gradient(#87CEEB 0 220px, #5da24a 220px); margin: 0; padding: 20px; min-height: 100vh; }
+    h1 { margin-bottom: 0; color: #fff; text-shadow: 2px 2px #111; }
+    .sub { color: #fff; font-weight: bold; text-shadow: 1px 1px #333; }
+    .arquibancada { max-width: 760px; margin: 16px auto 0; background: linear-gradient(#a1887f, #8d6e63); border-radius: 12px 12px 0 0; padding: 10px; border: 3px solid #5d4037; border-bottom: none; }
+    .torcedores { font-size: 26px; line-height: 1.3; }
+    .correndo .torcedores { animation: pular 0.35s infinite alternate; }
+    @keyframes pular { from { transform: translateY(0); } to { transform: translateY(-5px); } }
+    .torcida-msg { color: #fff; font-weight: bold; min-height: 1.4em; text-shadow: 1px 1px #333; }
+    .juiz-box { max-width: 760px; margin: 0 auto; background: #fff; padding: 10px 16px; display: flex; align-items: center; gap: 12px; border-left: 3px solid #5d4037; border-right: 3px solid #5d4037; }
     .juiz-emoji { font-size: 48px; }
     .juiz-fala { background: #f0f0f0; border-radius: 12px; padding: 8px 14px; font-weight: bold; flex: 1; text-align: left; border: 2px solid #333; }
-    .pista { max-width: 700px; margin: 0 auto 20px; background: #555; border-radius: 0 0 12px 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,.3); }
-    .corredor { display: flex; align-items: center; gap: 8px; border-bottom: 3px solid #fff; padding: 10px 0; }
+    .semaforo { display: flex; gap: 6px; align-items: center; }
+    .luz { width: 18px; height: 18px; border-radius: 50%; background: #444; border: 2px solid #222; }
+    .luz.vermelha.on { background: #ff2222; box-shadow: 0 0 8px #ff2222; }
+    .luz.verde.on { background: #22ff44; box-shadow: 0 0 8px #22ff44; }
+    .pista { max-width: 760px; margin: 0 auto 20px; background: #3d3d3d; border-radius: 0 0 12px 12px; padding: 14px; border: 3px solid #5d4037; border-top: none; box-shadow: 0 4px 12px rgba(0,0,0,.4); }
+    .corredor { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 4px dashed #f7d154; }
     .corredor:last-child { border-bottom: none; }
-    .nome { width: 160px; font-weight: bold; text-align: right; font-size: 14px; color: #fff; }
-    .trilha { position: relative; flex: 1; height: 56px; background: repeating-linear-gradient(90deg, #666 0 20px, #777 20px 40px); border-radius: 8px; overflow: hidden; }
-    .largada { position: absolute; left: 0; top: 0; bottom: 0; width: 10px; background: #27ae60; }
-    .chegada { position: absolute; right: 0; top: 0; bottom: 0; width: 14px; background: repeating-conic-gradient(#000 0 25%, #fff 0 50%) 0 0/14px 14px; }
-    .carro { position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 64px; transition: left 0.2s; z-index: 2; }
-    .carro svg { display: block; width: 64px; height: 40px; }
-    #resultado { font-size: 1.4em; font-weight: bold; margin: 16px 0; min-height: 1.5em; color: #fff; text-shadow: 1px 1px #000; }
-    button { font-size: 1.1em; padding: 10px 24px; border: none; border-radius: 8px; background: #27ae60; color: #fff; cursor: pointer; margin: 4px; }
-    button:disabled { background: #999; }
-    #reiniciar { background: #e67e22; }
-    footer { margin-top: 20px; color: #fff; }
+    .placa { width: 170px; text-align: right; color: #fff; font-size: 13px; font-weight: bold; }
+    .placa small { display: block; opacity: .8; font-weight: normal; }
+    .pos { display: inline-block; min-width: 34px; background: #111; color: #f7d154; border-radius: 6px; padding: 2px 6px; margin-bottom: 2px; }
+    .trilha { position: relative; flex: 1; height: 64px; background: linear-gradient(#4a4a4a, #555 50%, #4a4a4a); border-radius: 8px; overflow: hidden; border: 2px solid #222; }
+    .largada { position: absolute; left: 0; top: 0; bottom: 0; width: 8px; background: #fff; }
+    .chegada { position: absolute; right: 0; top: 0; bottom: 0; width: 18px; background: repeating-conic-gradient(#000 0 25%, #fff 0 50%) 0 0/18px 18px; border-left: 2px solid #f7d154; }
+    .carro { position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 110px; z-index: 2; filter: drop-shadow(0 3px 2px rgba(0,0,0,.5)); }
+    .carro svg { display: block; width: 110px; height: 52px; }
+    .vibra { animation: vibra .12s infinite; }
+    @keyframes vibra { from { margin-top: 0; } to { margin-top: -1.5px; } }
+    #resultado { font-size: 1.5em; font-weight: bold; margin: 16px 0; min-height: 1.5em; color: #fff; text-shadow: 2px 2px #000; }
+    button { font-size: 1.1em; padding: 12px 28px; border: none; border-radius: 10px; background: #27ae60; color: #fff; cursor: pointer; margin: 4px; font-weight: bold; box-shadow: 0 3px 0 #1e8449; }
+    button:disabled { background: #999; box-shadow: none; }
+    #reiniciar { background: #e67e22; box-shadow: 0 3px 0 #a65d1a; }
+    footer { margin-top: 20px; color: #fff; text-shadow: 1px 1px #333; }
     footer a { color: #fff; }
   </style>
 </head>
 <body>
-  <h1>Corrida Maluca 🏁</h1>
-  <p class="sub">4 corredores disputando a vitória!</p>
+  <h1>Corrida Maluca 🏁 BMW Edition</h1>
+  <p class="sub">4 BMWs disputando a vitória!</p>
 
-  <div class="arquibancada">
+  <div class="arquibancada" id="arquibancada">
     <div class="torcedores">🧑 👩 👧 👦 👵 👴 👶 🧒 👱‍♀️ 👨‍🦰 👩‍🦳 🧑‍🦱 👨 👩 🧑 👧 👦 👴 👵 👩</div>
     <div class="torcedores">👏 🎉 👏 🎉 👏 🎉 👏 🎉 👏 🎉 👏 🎉 👏 🎉 👏 🎉 👏 🎉 👏 🎉</div>
     <div class="torcida-msg" id="torcida">Torcida: Vai começar! 🎺</div>
   </div>
 
   <div class="juiz-box">
-    <span class="juiz-emoji" id="juiz-emoji">🧑‍⚖️🏁</span>
+    <span class="juiz-emoji">🧑‍⚖️🏁</span>
     <div class="juiz-fala" id="juiz-fala">Juiz: Preparar... aguardando largada! 🚦</div>
+    <div class="semaforo">
+      <div class="luz vermelha" id="luz1"></div>
+      <div class="luz vermelha" id="luz2"></div>
+      <div class="luz vermelha" id="luz3"></div>
+      <div class="luz verde" id="luz4"></div>
+    </div>
   </div>
 
-  <div class="pista" id="pista">
-    <div class="corredor" data-nome="Miguel">
-      <span class="nome">Miguel 🩵 verde-água</span>
-      <div class="trilha"><div class="largada"></div><span class="carro">
-        <svg viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg">
-          <ellipse cx="18" cy="32" rx="8" ry="8" fill="#222"/><ellipse cx="18" cy="32" rx="3.5" ry="3.5" fill="#999"/>
-          <ellipse cx="48" cy="32" rx="8" ry="8" fill="#222"/><ellipse cx="48" cy="32" rx="3.5" ry="3.5" fill="#999"/>
-          <rect x="4" y="18" width="56" height="12" rx="6" fill="#2DD4BF" stroke="#0d9488" stroke-width="2"/>
-          <rect x="22" y="10" width="22" height="12" rx="4" fill="#2DD4BF" stroke="#0d9488" stroke-width="2"/>
-          <circle cx="33" cy="12" r="6" fill="#fff" stroke="#0d9488" stroke-width="2"/>
-          <rect x="33" y="6" width="6" height="12" fill="#0d9488" transform="rotate(20 36 12)"/>
-          <rect x="28" y="10" width="8" height="4" rx="2" fill="#333"/>
-        </svg>
-      </span><div class="chegada"></div></div>
-    </div>
-    <div class="corredor" data-nome="Manuella G.">
-      <span class="nome">Manuella G. 💜 roxo-claro</span>
-      <div class="trilha"><div class="largada"></div><span class="carro">
-        <svg viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg">
-          <ellipse cx="18" cy="32" rx="8" ry="8" fill="#222"/><ellipse cx="18" cy="32" rx="3.5" ry="3.5" fill="#999"/>
-          <ellipse cx="48" cy="32" rx="8" ry="8" fill="#222"/><ellipse cx="48" cy="32" rx="3.5" ry="3.5" fill="#999"/>
-          <rect x="4" y="18" width="56" height="12" rx="6" fill="#C084FC" stroke="#9333EA" stroke-width="2"/>
-          <rect x="22" y="10" width="22" height="12" rx="4" fill="#C084FC" stroke="#9333EA" stroke-width="2"/>
-          <circle cx="33" cy="12" r="6" fill="#fff" stroke="#9333EA" stroke-width="2"/>
-          <rect x="33" y="6" width="6" height="12" fill="#9333EA" transform="rotate(20 36 12)"/>
-          <rect x="28" y="10" width="8" height="4" rx="2" fill="#333"/>
-        </svg>
-      </span><div class="chegada"></div></div>
-    </div>
-    <div class="corredor" data-nome="Helena">
-      <span class="nome">Helena ❤️ vermelho</span>
-      <div class="trilha"><div class="largada"></div><span class="carro">
-        <svg viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg">
-          <ellipse cx="18" cy="32" rx="8" ry="8" fill="#222"/><ellipse cx="18" cy="32" rx="3.5" ry="3.5" fill="#999"/>
-          <ellipse cx="48" cy="32" rx="8" ry="8" fill="#222"/><ellipse cx="48" cy="32" rx="3.5" ry="3.5" fill="#999"/>
-          <rect x="4" y="18" width="56" height="12" rx="6" fill="#EF4444" stroke="#B91C1C" stroke-width="2"/>
-          <rect x="22" y="10" width="22" height="12" rx="4" fill="#EF4444" stroke="#B91C1C" stroke-width="2"/>
-          <circle cx="33" cy="12" r="6" fill="#fff" stroke="#B91C1C" stroke-width="2"/>
-          <rect x="33" y="6" width="6" height="12" fill="#B91C1C" transform="rotate(20 36 12)"/>
-          <rect x="28" y="10" width="8" height="4" rx="2" fill="#333"/>
-        </svg>
-      </span><div class="chegada"></div></div>
-    </div>
-    <div class="corredor" data-nome="João B.">
-      <span class="nome">João B. 💙 azul</span>
-      <div class="trilha"><div class="largada"></div><span class="carro">
-        <svg viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg">
-          <ellipse cx="18" cy="32" rx="8" ry="8" fill="#222"/><ellipse cx="18" cy="32" rx="3.5" ry="3.5" fill="#999"/>
-          <ellipse cx="48" cy="32" rx="8" ry="8" fill="#222"/><ellipse cx="48" cy="32" rx="3.5" ry="3.5" fill="#999"/>
-          <rect x="4" y="18" width="56" height="12" rx="6" fill="#3B82F6" stroke="#1D4ED8" stroke-width="2"/>
-          <rect x="22" y="10" width="22" height="12" rx="4" fill="#3B82F6" stroke="#1D4ED8" stroke-width="2"/>
-          <circle cx="33" cy="12" r="6" fill="#fff" stroke="#1D4ED8" stroke-width="2"/>
-          <rect x="33" y="6" width="6" height="12" fill="#1D4ED8" transform="rotate(20 36 12)"/>
-          <rect x="28" y="10" width="8" height="4" rx="2" fill="#333"/>
-        </svg>
-      </span><div class="chegada"></div></div>
-    </div>
-  </div>
+  <div class="pista" id="pista"></div>
 
   <div id="resultado"></div>
   <button id="largar">Largar! 🏁</button>
@@ -116,51 +75,132 @@
   </footer>
 
   <script>
-    const carros = document.querySelectorAll('.carro');
+    const pilotos = [
+      { nome: 'Miguel', modelo: 'BMW azul', cor: '#3B82F6', escura: '#1D4ED8' },
+      { nome: 'Manuella G.', modelo: 'BMW roxa', cor: '#9333EA', escura: '#5B21B6' },
+      { nome: 'Helena', modelo: 'BMW verde-água', cor: '#2DD4BF', escura: '#0F766E' },
+      { nome: 'João B.', modelo: 'BMW vermelha', cor: '#EF4444', escura: '#991B1B' },
+    ];
+
+    function bmwSVG(cor, escura) {
+      return `<svg viewBox="0 0 120 56" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="60" cy="49" rx="46" ry="5" fill="rgba(0,0,0,.35)"/>
+        <path d="M6 40 Q10 28 28 26 L40 14 Q42 11 47 11 L82 11 Q87 11 90 15 L100 26 Q112 28 113 38 L113 42 Q113 44 110 44 L9 44 Q4 44 5 40 Z" fill="${cor}" stroke="${escura}" stroke-width="2.5"/>
+        <path d="M42 14 L52 26 L86 26 L78 14 Z" fill="#BFE3F5" stroke="${escura}" stroke-width="1.5"/>
+        <line x1="64" y1="14" x2="64" y2="26" stroke="${escura}" stroke-width="1.5"/>
+        <circle cx="68" cy="20" r="6.5" fill="#fff" stroke="${escura}" stroke-width="2"/>
+        <rect x="68" y="14" width="6.5" height="12" fill="${escura}" transform="rotate(18 71 20)"/>
+        <rect x="63" y="18" width="8" height="4.5" rx="2" fill="#222"/>
+        <rect x="108" y="32" width="5" height="6" rx="1.5" fill="#FFE58A" stroke="#8a6d00" stroke-width="1"/>
+        <rect x="7" y="33" width="5" height="5" rx="1.5" fill="#ff4444" stroke="#7a0000" stroke-width="1"/>
+        <rect x="98" y="34" width="4" height="7" rx="1" fill="#111"/>
+        <rect x="100" y="34" width="4" height="7" rx="1" fill="#111"/>
+        <rect x="44" y="30" width="18" height="9" rx="2" fill="rgba(255,255,255,.35)" stroke="${escura}" stroke-width="1"/>
+        <circle cx="74" cy="27" r="4" fill="#fff" stroke="#333" stroke-width="1"/>
+        <path d="M72 27 L76 27 L74 24 Z" fill="#1D4ED8"/><path d="M72 27 L74 29 L72 30 Z" fill="#fff"/>
+        <circle cx="32" cy="44" r="11" fill="#1a1a1a"/><circle cx="32" cy="44" r="5.5" fill="#c0c0c0"/><circle cx="32" cy="44" r="2" fill="#333"/>
+        <circle cx="90" cy="44" r="11" fill="#1a1a1a"/><circle cx="90" cy="44" r="5.5" fill="#c0c0c0"/><circle cx="90" cy="44" r="2" fill="#333"/>
+      </svg>`;
+    }
+
+    const pista = document.getElementById('pista');
+    pilotos.forEach((p, i) => {
+      const div = document.createElement('div');
+      div.className = 'corredor';
+      div.dataset.nome = p.nome;
+      div.innerHTML = `<div class="placa"><span class="pos" id="pos${i}">4º</span><br>${p.nome}<small>${p.modelo} 🪖</small></div>
+        <div class="trilha"><div class="largada"></div><span class="carro" id="carro${i}">${bmwSVG(p.cor, p.escura)}</span><div class="chegada"></div></div>`;
+      pista.appendChild(div);
+    });
+
+    const carros = [0,1,2,3].map(i => document.getElementById('carro' + i));
+    const posEl = [0,1,2,3].map(i => document.getElementById('pos' + i));
     const resultado = document.getElementById('resultado');
     const btnLargar = document.getElementById('largar');
     const btnReiniciar = document.getElementById('reiniciar');
     const juizFala = document.getElementById('juiz-fala');
     const torcida = document.getElementById('torcida');
-    let posicoes = [0, 0, 0, 0];
-    let intervalo = null;
+    const arq = document.getElementById('arquibancada');
+    const luzes = ['luz1','luz2','luz3'].map(id => document.getElementById(id));
+    const luzVerde = document.getElementById('luz4');
+
+    let dist = [0,0,0,0], vel = [0,0,0,0], maxV = [0,0,0,0], frame = null, correndo = false;
+
+    function apagaLuzes(){ luzes.forEach(l=>l.classList.remove('on')); luzVerde.classList.remove('on'); }
 
     function reiniciar() {
-      clearInterval(intervalo);
-      intervalo = null;
-      posicoes = [0, 0, 0, 0];
-      carros.forEach(c => c.style.left = '0%');
+      cancelAnimationFrame(frame); frame = null; correndo = false;
+      arq.classList.remove('correndo');
+      carros.forEach(c => { c.style.left = '0%'; c.classList.remove('vibra'); });
+      dist = [0,0,0,0]; vel = [0,0,0,0];
       resultado.textContent = '';
       juizFala.textContent = 'Juiz: Preparar... aguardando largada! 🚦';
       torcida.textContent = 'Torcida: Vai começar! 🎺';
+      apagaLuzes(); btnLargar.disabled = false;
+      atualizaPos();
+    }
+
+    function atualizaPos() {
+      const ordem = [0,1,2,3].sort((a,b) => dist[b]-dist[a]);
+      const medalha = ['1º','2º','3º','4º'];
+      ordem.forEach((carro, rank) => posEl[carro].textContent = medalha[rank]);
+    }
+
+    function passo() {
+      let vencedor = -1;
+      for (let i = 0; i < 4; i++) {
+        vel[i] += (Math.random() * 0.35);
+        if (vel[i] > maxV[i]) vel[i] = maxV[i] - Math.random()*0.4;
+        if (vel[i] < maxV[i]*0.4) vel[i] = maxV[i]*0.4;
+        dist[i] += vel[i];
+        if (dist[i] >= 84) { dist[i] = 84; if (vencedor === -1) vencedor = i; }
+        carros[i].style.left = dist[i] + '%';
+      }
+      atualizaPos();
+      if (vencedor !== -1) {
+        // photo-finish: quem está mais à frente no momento vence
+        const campeao = [0,1,2,3].sort((a,b)=>dist[b]-dist[a])[0];
+        fim(campeao); return;
+      }
+      frame = requestAnimationFrame(passo);
+    }
+
+    function fim(campeao) {
+      correndo = false;
+      arq.classList.remove('correndo');
+      carros.forEach(c => c.classList.remove('vibra'));
+      const nome = pilotos[campeao].nome;
+      const modelo = pilotos[campeao].modelo;
+      resultado.textContent = `🏆 ${nome} (${modelo}) venceu!`;
+      juizFala.textContent = `Juiz: Fim de prova! Vitória de ${nome}! 🏁`;
+      torcida.textContent = `Torcida: ${nome} é campeão! 🎉🎊🥳`;
       btnLargar.disabled = false;
     }
 
     function largar() {
       reiniciar();
       btnLargar.disabled = true;
-      juizFala.textContent = 'Juiz: 3... 2... 1... VAI! 🏁';
-      torcida.textContent = 'Torcida: Vai, vai, vai! 📣📣📣';
-      intervalo = setInterval(() => {
-        let vencedor = -1;
-        for (let i = 0; i < 4; i++) {
-          posicoes[i] += Math.random() * 4;
-          if (posicoes[i] >= 85) { posicoes[i] = 85; vencedor = i; }
-          carros[i].style.left = posicoes[i] + '%';
+      maxV = pilotos.map(() => 0.55 + Math.random() * 0.25);
+      juizFala.textContent = 'Juiz: Atenção... 3... 2... 1...';
+      let n = 0;
+      const seq = setInterval(() => {
+        if (n < 3) { luzes[n].classList.add('on'); n++; }
+        else {
+          clearInterval(seq);
+          apagaLuzes(); luzVerde.classList.add('on');
+          juizFala.textContent = 'Juiz: VAI! 🏁';
+          torcida.textContent = 'Torcida: Vai, vai, vai! 📣📣📣';
+          arq.classList.add('correndo');
+          carros.forEach(c => c.classList.add('vibra'));
+          correndo = true;
+          frame = requestAnimationFrame(passo);
         }
-        if (vencedor !== -1) {
-          clearInterval(intervalo);
-          const nome = document.querySelectorAll('.corredor')[vencedor].dataset.nome;
-          resultado.textContent = '🏆 ' + nome + ' venceu a Corrida Maluca!';
-          juizFala.textContent = 'Juiz: Fim de prova! Vitória de ' + nome + '! 🏁';
-          torcida.textContent = 'Torcida: ' + nome + ' é campeão! 🎉🎊🥳';
-          btnLargar.disabled = false;
-        }
-      }, 100);
+      }, 600);
     }
 
     btnLargar.addEventListener('click', largar);
     btnReiniciar.addEventListener('click', reiniciar);
+    reiniciar();
   </script>
 </body>
 </html>
